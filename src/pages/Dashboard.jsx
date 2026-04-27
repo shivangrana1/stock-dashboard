@@ -4,7 +4,7 @@ import StockCard from '../components/StockCard'
 import Chart from '../components/Chart'
 import Watchlist from '../components/Watchlist'
 import SkeletonCard from '../components/SkeletonCard'
-import { fetchQuote } from '../api'
+import { fetchQuote, fetchCandles } from '../api'
 
 const symbolList = [
   { symbol: 'AAPL', name: 'Apple Inc.' },
@@ -18,7 +18,9 @@ function Dashboard({ darkMode }) {
   const [search, setSearch] = useState('')
   const [stocks, setStocks] = useState([])
   const [selectedStock, setSelectedStock] = useState(null)
+  const [candles, setCandles] = useState([])
   const [loading, setLoading] = useState(true)
+  const [chartLoading, setChartLoading] = useState(false)
   const [error, setError] = useState(null)
   const navigate = useNavigate()
 
@@ -39,6 +41,8 @@ function Dashboard({ darkMode }) {
         } else {
           setStocks(validStocks)
           setSelectedStock(validStocks[0])
+          const initialCandles = await fetchCandles(validStocks[0].symbol)
+          setCandles(initialCandles)
         }
       } catch (err) {
         setError('Something went wrong. Please try again later.')
@@ -48,6 +52,14 @@ function Dashboard({ darkMode }) {
     }
     loadStocks()
   }, [])
+
+  const handleStockClick = async (stock) => {
+    setSelectedStock(stock)
+    setChartLoading(true)
+    const candleData = await fetchCandles(stock.symbol)
+    setCandles(candleData)
+    setChartLoading(false)
+  }
 
   const filteredStocks = stocks.filter(s =>
     s.symbol.toLowerCase().includes(search.toLowerCase()) ||
@@ -125,7 +137,7 @@ function Dashboard({ darkMode }) {
             filteredStocks.map(stock => (
               <div
                 key={stock.symbol}
-                onClick={() => setSelectedStock(stock)}
+                onClick={() => handleStockClick(stock)}
                 onDoubleClick={() => navigate(`/stock/${stock.symbol}`)}
                 className={`cursor-pointer transition-all ${selectedStock?.symbol === stock.symbol ? 'ring-2 ring-green-500 rounded-xl' : ''}`}
               >
@@ -150,7 +162,20 @@ function Dashboard({ darkMode }) {
       {!loading && selectedStock && (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2">
-            <Chart selectedStock={selectedStock} darkMode={darkMode} />
+            {chartLoading ? (
+              <div className={`border rounded-xl p-5 h-96 flex items-center justify-center ${darkMode ? 'bg-gray-900 border-gray-800' : 'bg-white border-gray-200'}`}>
+                <div className="flex flex-col items-center gap-3">
+                  <div className="w-8 h-8 border-2 border-green-400 border-t-transparent rounded-full animate-spin"></div>
+                  <p className="text-gray-400 text-sm">Loading chart...</p>
+                </div>
+              </div>
+            ) : (
+              <Chart
+                selectedStock={selectedStock}
+                darkMode={darkMode}
+                candleData={candles}
+              />
+            )}
           </div>
           <div>
             <Watchlist darkMode={darkMode} />
