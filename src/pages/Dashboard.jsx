@@ -4,20 +4,49 @@ import StockCard from '../components/StockCard'
 import Chart from '../components/Chart'
 import Watchlist from '../components/Watchlist'
 import SkeletonCard from '../components/SkeletonCard'
-import { stocks } from '../mockData'
+import { fetchQuote } from '../api'
+
+const symbolList = [
+  { symbol: 'AAPL', name: 'Apple Inc.' },
+  { symbol: 'GOOGL', name: 'Alphabet Inc.' },
+  { symbol: 'MSFT', name: 'Microsoft Corp.' },
+  { symbol: 'TSLA', name: 'Tesla Inc.' },
+  { symbol: 'AMZN', name: 'Amazon.com Inc.' },
+]
 
 function Dashboard({ darkMode }) {
   const [search, setSearch] = useState('')
+  const [stocks, setStocks] = useState([])
   const [selectedStock, setSelectedStock] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
   const navigate = useNavigate()
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setSelectedStock(stocks[0])
-      setLoading(false)
-    }, 1500)
-    return () => clearTimeout(timer)
+    const loadStocks = async () => {
+      try {
+        setLoading(true)
+        const results = await Promise.all(
+          symbolList.map(async ({ symbol, name }) => {
+            const quote = await fetchQuote(symbol)
+            if (!quote) return null
+            return { symbol, name, ...quote }
+          })
+        )
+        const validStocks = results.filter(s => s !== null)
+        if (validStocks.length === 0) {
+          setError('Could not load stock data. Please check your API key.')
+        } else {
+          setStocks(validStocks)
+          setSelectedStock(validStocks[0])
+        }
+      } catch (err) {
+        setError('Something went wrong. Please try again later.')
+      } finally {
+        setLoading(false)
+      }
+    }
+    loadStocks()
   }, [])
 
   const filteredStocks = stocks.filter(s =>
@@ -32,26 +61,33 @@ function Dashboard({ darkMode }) {
   return (
     <div className="p-8 flex flex-col gap-8">
 
+      {/* Error Message */}
+      {error && (
+        <div className="bg-red-900 border border-red-700 text-red-300 px-5 py-4 rounded-xl">
+          {error}
+        </div>
+      )}
+
       {/* Summary Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <div className={`border rounded-xl p-4 ${darkMode ? 'bg-gray-900 border-gray-800' : 'bg-white border-gray-200'}`}>
           <p className={`text-xs uppercase tracking-widest mb-1 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>Total Tracked</p>
-          <p className={`text-2xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>{stocks.length}</p>
+          <p className={`text-2xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>{loading ? '--' : stocks.length}</p>
           <p className={`text-xs mt-1 ${darkMode ? 'text-gray-500' : 'text-gray-400'}`}>Stocks</p>
         </div>
         <div className={`border rounded-xl p-4 ${darkMode ? 'bg-gray-900 border-gray-800' : 'bg-white border-gray-200'}`}>
           <p className={`text-xs uppercase tracking-widest mb-1 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>Portfolio Value</p>
-          <p className={`text-2xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>${totalValue.toFixed(0)}</p>
+          <p className={`text-2xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>{loading ? '--' : `$${totalValue.toFixed(0)}`}</p>
           <p className={`text-xs mt-1 ${darkMode ? 'text-gray-500' : 'text-gray-400'}`}>Combined price</p>
         </div>
         <div className={`border rounded-xl p-4 ${darkMode ? 'bg-gray-900 border-gray-800' : 'bg-white border-gray-200'}`}>
           <p className={`text-xs uppercase tracking-widest mb-1 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>Gainers</p>
-          <p className="text-2xl font-bold text-green-400">{gainers}</p>
+          <p className="text-2xl font-bold text-green-400">{loading ? '--' : gainers}</p>
           <p className={`text-xs mt-1 ${darkMode ? 'text-gray-500' : 'text-gray-400'}`}>Up today</p>
         </div>
         <div className={`border rounded-xl p-4 ${darkMode ? 'bg-gray-900 border-gray-800' : 'bg-white border-gray-200'}`}>
           <p className={`text-xs uppercase tracking-widest mb-1 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>Losers</p>
-          <p className="text-2xl font-bold text-red-400">{losers}</p>
+          <p className="text-2xl font-bold text-red-400">{loading ? '--' : losers}</p>
           <p className={`text-xs mt-1 ${darkMode ? 'text-gray-500' : 'text-gray-400'}`}>Down today</p>
         </div>
       </div>
