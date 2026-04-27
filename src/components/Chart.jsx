@@ -1,15 +1,17 @@
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 import { chartData } from '../mockData'
 
-function Chart({ selectedStock }) {
+function Chart({ selectedStock, darkMode, candleData }) {
+  const data = candleData && candleData.length > 0 ? candleData : chartData
+
   return (
-    <div className="bg-gray-900 border border-gray-800 rounded-xl p-5">
+    <div className={`border rounded-xl p-5 ${darkMode ? 'bg-gray-900 border-gray-800' : 'bg-white border-gray-200'}`}>
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h2 className="text-white font-bold text-lg">
+          <h2 className={`font-bold text-lg ${darkMode ? 'text-white' : 'text-gray-900'}`}>
             {selectedStock.symbol} Price History
           </h2>
-          <p className="text-gray-400 text-sm">{selectedStock.name}</p>
+          <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{selectedStock.name}</p>
         </div>
         <div className="flex items-center gap-2">
           <span className={`text-sm font-semibold px-3 py-1 rounded-full ${
@@ -19,14 +21,14 @@ function Chart({ selectedStock }) {
           }`}>
             {selectedStock.change >= 0 ? '▲' : '▼'} {Math.abs(selectedStock.changePercent).toFixed(2)}%
           </span>
-          <span className="text-white font-bold text-lg">
+          <span className={`font-bold text-lg ${darkMode ? 'text-white' : 'text-gray-900'}`}>
             ${selectedStock.price.toFixed(2)}
           </span>
         </div>
       </div>
       <ResponsiveContainer width="100%" height={300}>
-        <LineChart data={chartData}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#1f2937" />
+        <LineChart data={data}>
+          <CartesianGrid strokeDasharray="3 3" stroke={darkMode ? '#1f2937' : '#e5e7eb'} />
           <XAxis
             dataKey="date"
             stroke="#6b7280"
@@ -39,10 +41,10 @@ function Chart({ selectedStock }) {
           />
           <Tooltip
             contentStyle={{
-              backgroundColor: '#111827',
+              backgroundColor: darkMode ? '#111827' : '#ffffff',
               border: '1px solid #374151',
               borderRadius: '8px',
-              color: '#fff'
+              color: darkMode ? '#fff' : '#111827'
             }}
           />
           <Line
@@ -50,7 +52,7 @@ function Chart({ selectedStock }) {
             dataKey="price"
             stroke={selectedStock.change >= 0 ? '#4ade80' : '#f87171'}
             strokeWidth={2}
-            dot={{ fill: selectedStock.change >= 0 ? '#4ade80' : '#f87171', r: 4 }}
+            dot={false}
             activeDot={{ r: 6 }}
           />
         </LineChart>
