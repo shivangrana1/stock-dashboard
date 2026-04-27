@@ -3,7 +3,7 @@
 A real-time stock market dashboard built with React, Tailwind CSS, and Finnhub API.
 
 ## Live Demo
-[View Live](https://your-vercel-url.vercel.app)
+[View Live](https://stock-dashboard-jade-nine.vercel.app)
 
 ## Features
 - Real-time stock prices from Finnhub API
