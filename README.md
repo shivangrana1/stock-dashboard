@@ -1,16 +1,62 @@
-# React + Vite
+# Stock Dashboard
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A real-time stock market dashboard built with React, Tailwind CSS, and Finnhub API.
 
-Currently, two official plugins are available:
+## Live Demo
+[View Live](https://your-vercel-url.vercel.app)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Features
+- Real-time stock prices from Finnhub API
+- Interactive price history charts
+- Search stocks by name or symbol
+- Click any stock for detailed view
+- Add/remove stocks from watchlist
+- Loading skeletons while data fetches
+- Error handling for failed API calls
+- Dark and light mode toggle
+- Fully responsive design
 
-## React Compiler
+## Tech Stack
+- React 18
+- Vite
+- Tailwind CSS
+- Recharts
+- React Router v6
+- Finnhub API
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Getting Started
 
-## Expanding the ESLint configuration
+1. Clone the repository
+   git clone https://github.com/YOUR_USERNAME/stock-dashboard.git
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+2. Install dependencies
+   npm install
+
+3. Create a .env file in the root folder
+   VITE_FINNHUB_KEY=your_api_key_here
+
+4. Get a free API key from https://finnhub.io
+
+5. Start the development server
+   npm run dev
+
+## Project Structure
+src/
+├── components/
+│   ├── Chart.jsx
+│   ├── Navbar.jsx
+│   ├── SkeletonCard.jsx
+│   ├── StockCard.jsx
+│   └── Watchlist.jsx
+├── pages/
+│   ├── Dashboard.jsx
+│   └── StockDetail.jsx
+├── api.js
+├── mockData.js
+└── App.jsx
+
+## Screenshots
+Coming soon
+
+## Author
+Shivang Rana
